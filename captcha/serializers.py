@@ -2,6 +2,8 @@ import uuid
 import base64
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 from rest_captcha import captcha
@@ -25,6 +27,23 @@ class GenerateCaptchaSerializer(serializers.Serializer):
             'CAPTCHA_IMAGE': image_b64,
             "image_type": "image/png",
             "image_decode": "base64",
-            'value': value
+            # 'value': value
         }
+        return data
+
+
+class ValidateCaptchaSerializer(serializers.Serializer):
+    captcha_key = serializers.CharField(max_length=300, read_only=False, write_only=True)
+    captcha_value = serializers.CharField(max_length=5, read_only=False, write_only=True)
+
+    def validate(self, data):
+        try:
+            captcha_key = data.get('captcha_key')
+            captcha_value = data.get('captcha_value')
+            captcha_value_redis = settings.REDIS_CAPTCHA.get(name=captcha_key)
+            captcha_value_redis = captcha_value_redis.decode('utf-8')
+        except:
+            raise ValidationError(_('Captcha is invalid or expired'))
+        if captcha_value_redis != captcha_value:
+            raise ValidationError(_('Captcha is invalid or expired'))
         return data
