@@ -156,14 +156,9 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(hours=24),
 }
 
-# redis jwt token
+# redis captcha
 REDIS_HOST = config('REDIS_HOST')
 REDIS_PORT = config('REDIS_PORT')
-REDIS_REFRESH_TIME = 24 * (60 * 60)
-REDIS_JWT_TOKEN = redis.StrictRedis(host=REDIS_HOST,
-                                    port=REDIS_PORT, db=0)
-
-# redis otp code
-REDIS_OTP_CODE_TIME = 2 * 60
-REDIS_OTP_CODE = redis.StrictRedis(host=REDIS_HOST,
-                                   port=REDIS_PORT, db=1)
+REDIS_CAPTCHA_TIME = timedelta(minutes=2)
+REDIS_CAPTCHA = redis.StrictRedis(host=REDIS_HOST,
+                                  port=REDIS_PORT, db=1)
